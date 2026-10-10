@@ -169,7 +169,7 @@ def main():
             summary.append(f"{name}: {R['error']}")
         path = os.path.join(a.out, f"bench_{name}_{devices[0].replace(':', '')}"
                                    f"{'x2' if len(devices) > 1 else ''}.json")
-        with open(path, "w") as fh:
+        with open(path, "w", encoding="utf-8") as fh:
             json.dump(R, fh, indent=1)
         log(f"  wrote {path}")
     print(f"{'PASS' if ok else 'FAIL'} bench {devices}: " + "; ".join(summary))

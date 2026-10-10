@@ -31,9 +31,12 @@ def main():
     ap.add_argument("--M", type=int, default=4, help="training Haar states")
     ap.add_argument("--M-heldout", type=int, default=2)
     ap.add_argument("--maxiter", type=int, default=500)
-    ap.add_argument("--plateau-window", type=int, default=20,
+    ap.add_argument("--precond", default="own",
+                    help="Hessian preconditioner: own (2P extra gradients on the block), "
+                         "a smaller patch such as 3x4, or none (PLAN.md §4.5)")
+    ap.add_argument("--plateau-window", type=int, default=None,
                     help="stop when J gained < --plateau-rel over this many iterations "
-                         "(PLAN.md default 20; 0 disables, see README)")
+                         "(default 30 preconditioned, 100 with --precond none; 0 disables)")
     ap.add_argument("--plateau-rel", type=float, default=1e-3)
     ap.add_argument("--cert-seeds", type=int, nargs="*", default=[1, 2],
                     help="Lanczos start vectors per certification (none = skip)")
@@ -52,7 +55,7 @@ def main():
 
     os.makedirs(a.out, exist_ok=True)
     logpath = os.path.join(a.out, f"{a.patch}_s{a.seed}_t{a.t:g}.log")
-    logfh = open(logpath, "a")
+    logfh = open(logpath, "a", encoding="utf-8")
 
     def log(msg):
         line = f"{time.strftime('%H:%M:%S')} {msg}"
@@ -67,7 +70,8 @@ def main():
         setup = block.Setup(a.patch, a.seed, a.t, devices, diag=not a.no_diag, log=log)
         for L in a.L:
             R = block.run(setup, L, init=a.init, M=a.M, M_heldout=a.M_heldout,
-                          maxiter=a.maxiter, plateau_window=a.plateau_window,
+                          maxiter=a.maxiter, precond=a.precond,
+                          plateau_window=a.plateau_window,
                           plateau_rel=a.plateau_rel, cert_seeds=a.cert_seeds,
                           cert_maxiter=a.cert_maxiter, cert_tol=a.cert_tol,
                           out_dir=a.out, resume=a.resume, force=a.force,

@@ -75,11 +75,35 @@ class Setup:
         return [train.make_states(o, s, self.t, self.cc, self.ss) for o, s in zip(self.ops, per)]
 
 
-def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, plateau_window=20,
-        plateau_rel=1e-3, cert_seeds=(1, 2),
+def hessian(setup, seq, c0, f, J0, precond, M, path, log):
+    """Hessian of J/J0 at the Trotter point for the preconditioner.
+
+    precond 'own' differentiates the block's own loss (P+1 gradient evaluations);
+    a patch name such as '3x4' does it on that smaller patch (same L, t, seed),
+    which costs nothing next to one 30-qubit iteration.
+    """
+    if precond == "own":
+        return train.fd_hessian(f, c0, J0, cache=path, log=log)
+    small = Setup(precond, setup.patch.seed, setup.t, setup.devices[:1], log=lambda m: None)
+    st = small.states(list(range(TRAIN_SEED0, TRAIN_SEED0 + M)))
+    fs = train.objective(small.ops, seq, setup.t, st)
+    H = train.fd_hessian(fs, c0, fs(c0, need_grad=False)[0], cache=path, log=lambda m: None)
+    del st, fs, small
+    _release()
+    return H
+
+
+def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, precond="own",
+        plateau_window=None, plateau_rel=1e-3, cert_seeds=(1, 2),
         cert_maxiter=300, cert_tol=1e-4, out_dir="results", resume=False, force=False,
         eps_blk=None, log=print):
-    """Train, evaluate and certify one L.  Returns the result dict (also saved)."""
+    """Train, evaluate and certify one L.  Returns the result dict (also saved).
+
+    plateau_window defaults to 30 with a preconditioner and 100 without
+    (PLAN.md §4.5: plain L-BFGS crawls for ~150 iterations before its second drop).
+    """
+    if plateau_window is None:
+        plateau_window = 100 if precond == "none" else 30
     p, t = setup.patch, setup.t
     init = init or ansatz.default_init(L)
     name = tag(p.name, p.seed, t, L)
@@ -90,7 +114,7 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, plateau_window=20,
 
     R = {}
     if os.path.exists(path) and not force:
-        with open(path) as fh:
+        with open(path, encoding="utf-8") as fh:
             R = json.load(fh)
         if R.get("complete") and not resume:
             log(f"[{name}] already complete, skipping (use --force to redo)")
@@ -115,7 +139,7 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, plateau_window=20,
     def save():
         R["env"] = env_info(setup.devices)
         R["env"]["wall_total_s"] = prior_wall + time.time() - wall0
-        with open(path + ".tmp", "w") as fh:
+        with open(path + ".tmp", "w", encoding="utf-8") as fh:
             json.dump(R, fh, indent=1)
         os.replace(path + ".tmp", path)
 
@@ -126,7 +150,17 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, plateau_window=20,
         f = train.objective(setup.ops, seq, t, st)
         J0, _, inf0 = f(c0, need_grad=False)
         log(f"[{name}] J0 = {J0:.6e}  (eps_rHS {adjoint.eps_rhs(J0):.3e})")
-        tr = train.lbfgs(f, c0, J0, maxiter=maxiter, window=plateau_window,
+        B = None
+        if precond != "none":
+            th = time.time()
+            H = hessian(setup, seq, c0, f, J0, precond, M,
+                        os.path.join(out_dir, "ckpt", f"{name}.hess_{precond}.json"), log)
+            B, eig = train.preconditioner(H)
+            R["precond"] = dict(source=precond, hessian_eigenvalues=list(map(float, eig)),
+                                wall_s=time.time() - th)
+            log(f"[{name}] preconditioner from {precond}: Hessian eigenvalues "
+                f"{eig[-1]:.2e} .. {eig[0]:.2e} ({time.time() - th:.0f}s)")
+        tr = train.lbfgs(f, c0, J0, B=B, maxiter=maxiter, window=plateau_window,
                          min_rel=plateau_rel, ckpt=ckpt, resume=resume, log=log)
         Jf, _, inff = f(tr["c_final"], need_grad=False)
         tr.update(phase_init=mean_phase(inf0), phase_final=mean_phase(inff),

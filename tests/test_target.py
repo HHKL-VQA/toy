@@ -62,7 +62,7 @@ def test_cheb_vs_eigh_and_expm():
                 info = {}
                 out = target.evolve(torch.tensor(v0), ops, t, c, s, sign=sign, info=info)
                 assert np.abs(out.numpy() - ref).max() < 1e-13, (sx, sy, t, sign)
-                assert info["growth"] <= 1.0 + 1e-12
+                assert info["norm_dev"] <= 1e-13
         if p.n <= 9:
             H = dense_H(p)
             for t in (3.41e-3, 0.05):

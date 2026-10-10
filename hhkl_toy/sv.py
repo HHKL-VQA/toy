@@ -99,7 +99,9 @@ def vdot(a, b):
 
 
 def norm(a):
-    return float(torch.linalg.vector_norm(a))
+    """||a|| via a BLAS dot product (vector_norm would allocate |a| first)."""
+    flat = a.reshape(-1)
+    return math.sqrt(max(torch.vdot(flat, flat).real.item(), 0.0))
 
 
 # ---------------------------------------------------------------------------
@@ -201,8 +203,10 @@ def apply_H(v, ops, out, scale=1.0):
     """
     n = ops.n
     if ops.D is not None:
-        D = ops.D if v.dim() == 1 else ops.D[:, None]
-        out.addcmul_(v, D, value=scale)
+        # real views: a float64 D times a complex v would make the CPU backend
+        # cast D to a full complex temporary first
+        vr, outr = torch.view_as_real(v), torch.view_as_real(out)
+        outr.addcmul_(vr, ops.D.view(-1, *([1] * (vr.dim() - 1))), value=scale)
     else:
         for i, j in ops.bonds:
             o00, o01, o10, o11 = _blocks(_bond_view(out, n, i, j))
@@ -235,5 +239,5 @@ def haar_state(n, seed, device="cpu", out=None):
     if out is None:
         out = torch.empty(1 << n, dtype=CDTYPE, device=device)
     torch.randn(out.shape, dtype=CDTYPE, device=device, generator=g, out=out)
-    out /= torch.linalg.vector_norm(out)
+    out /= norm(out)
     return out

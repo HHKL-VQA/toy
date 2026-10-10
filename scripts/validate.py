@@ -6,7 +6,7 @@
 (a) training never ends above its Trotter start (loss and certified eps),
     2x3 and 3x3 at t* = 3.41e-3, L = 2 and 4
 (b) 2x3, t = 0.05, L = 10 from S4: S4 certifies at ~7.6e-6 and the trained
-    circuit is ~2x better (PLAN.md §1.3)
+    circuit is at least ~2x better (PLAN.md §1.3; preconditioned training gets ~3.9x)
 (c) held-out vs training loss differ by <= 1 % at 16-20 qubits with M = 4
     (if not, rerun with --M 8 and use M = 8 for the main experiment)
 (d) (GPU only) CPU and device agree on circuit, Chebyshev and gradient at n = 12
@@ -59,7 +59,7 @@ def main():
         checks.append(dict(name=name, passed=bool(ok), **vals))
         log(f"{'PASS' if ok else 'FAIL'} {name}  {vals}")
 
-    quiet = lambda msg: None if " it " in msg else log(msg)
+    quiet = lambda msg: None if (" it " in msg or "Hessian column" in msg) else log(msg)
 
     def run(patch, t, L, init=None, cert=True, M=4):
         setup = block.Setup(patch, 0, t, [device], log=quiet)
@@ -81,8 +81,10 @@ def main():
         # (b) ------------------------------------------------------------------
         R = run("2x3", 0.05, 10, init="S4")
         r = R["result"]
-        ok = abs(r["eps_spec_init"] / 7.6e-6 - 1) < 0.05 and 1.8 <= r["improvement"] <= 2.6
-        record("(b) 2x3 t=0.05 L=10: S4 ~7.6e-6, HVA ~2x better", ok,
+        # the previous session's optimizer got ~2.1x; the preconditioned one goes
+        # further (3.9x here), so only the lower end is a reproduction check
+        ok = abs(r["eps_spec_init"] / 7.6e-6 - 1) < 0.05 and r["improvement"] >= 1.8
+        record("(b) 2x3 t=0.05 L=10: S4 ~7.6e-6, HVA >= ~2x better", ok,
                eps_S4=r["eps_spec_init"], eps_HVA=r["eps_spec_trained"],
                improvement=r["improvement"])
 
@@ -106,7 +108,7 @@ def main():
     out = dict(device=device, checks=checks, wall_s=time.time() - t_start,
                env=block.env_info([device]))
     path = os.path.join(a.out, f"validate_{dtag}.json")
-    with open(path, "w") as fh:
+    with open(path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=1)
     n_ok = sum(c["passed"] for c in checks)
     failed = [c["name"] for c in checks if not c["passed"]]

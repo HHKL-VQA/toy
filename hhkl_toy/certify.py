@@ -9,9 +9,10 @@ of S, and with w = arcsin(lam_max) - arcsin(lam_min) the arc width,
 
 w does not depend on phi as long as every |delta_j| < pi/2, so phi only needs
 to be roughly right.  Sign convention: phi = arg <V psi|U psi> as in the loss,
-so that U ~ e^{i phi} V and W ~ 1.  (PLAN.md §4.6 writes e^{-i phi}; with this
-phi that would centre W at e^{-2i phi}.  Harmless while phi ~ 0, but this is
-the consistent sign.)
+so that U ~ e^{i phi} V and W ~ 1 (PLAN.md §4.6, corrected 2026-10-10: the
+earlier e^{-i phi} centred W at e^{-2i phi} and folds arcsin once 2|phi| nears
+pi/2).  The Lanczos stopping test is relative to the arc width, so an offset
+short of the fold costs no accuracy.
 
 Ritz values sit inside the spectrum, so a truncated run underestimates eps.
 """
@@ -25,8 +26,9 @@ from . import ansatz, sv, target
 
 def _sv_matvec(ops_list, seq, c, t, cc, ss, phase):
     """v -> S v.  One device: U v and V^dag U v first, then V v and U^dag V v,
-    so at most six vectors live at once (two of them Lanczos').  Two devices:
-    device 0 does U^dag V v while device 1 does V^dag U v.
+    so at most five vectors live at once (v_prev and v of Lanczos, one finished
+    half, two Chebyshev work vectors).  Two devices: device 0 does U^dag V v
+    while device 1 does V^dag U v (at most four and three vectors).
     """
     ep = complex(math.cos(phase), math.sin(phase))
     pool = ThreadPoolExecutor(max_workers=2) if len(ops_list) > 1 else None
@@ -76,18 +78,23 @@ def certify(ops_list, seq, c, t, cc, ss, phase=0.0, seed=1, max_iter=300,
             log(f"  certify it {k:4d}  lam_min {lo:+.10e}  lam_max {hi:+.10e}"
                 f"  ({time.time() - t0:.0f}s)")
 
-    v0 = sv.haar_state(ops.n, 20_000 + seed, ops.device)
     try:
-        r = target.lanczos(matvec, v0, max_iter=max_iter, tol=tol, window=window,
-                           on_iter=on_iter)
+        r = target.lanczos(matvec, sv.haar_state(ops.n, 20_000 + seed, ops.device),
+                           max_iter=max_iter, tol=tol, window=window, on_iter=on_iter)
     finally:
         if pool is not None:
             pool.shutdown()
     lo = max(-1.0, min(1.0, r["lam_min"]))
     hi = max(-1.0, min(1.0, r["lam_max"]))
     width = math.asin(hi) - math.asin(lo)
+    # arcsin is only faithful for |delta| < pi/2; with phi from the loss the
+    # arc is centred near 0, so this should be ~eps, never near 1.57
+    max_delta = max(abs(math.asin(lo)), abs(math.asin(hi)))
+    if max_delta > 1.0 and log is not None:
+        log(f"  WARNING certify: |delta| reaches {max_delta:.3f} rad; phase estimate is off")
     return dict(eps_spec=2.0 * math.sin(width / 4.0), lam_max=r["lam_max"],
-                lam_min=r["lam_min"], width=width, iters=r["iters"],
+                lam_min=r["lam_min"], width=width, max_abs_delta=max_delta,
+                iters=r["iters"],
                 converged=r["converged"], phase=phase, seed=seed,
                 ritz_history=r["history"], wall_s=time.time() - t0)
 

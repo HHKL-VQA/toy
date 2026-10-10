@@ -98,6 +98,36 @@ def test_phase_independence_and_wrong_formula():
     assert abs(2 * np.sin(w / 2) / ex - 2) < 1e-3
 
 
+def test_phase_sign_convention():
+    """PLAN.md §4.6 sign: W = e^{+i phi} U^dag V with phi = arg <V psi|U psi>.
+
+    For U' = e^{i g} U the training phase is phi ~ g, and certify(U', phi) is
+    certify(U, 0).  The old e^{-i phi} would be certify(U, -2g): W centred at
+    e^{-2ig}.  At g = pi/4 the arc sits on the arcsin fold and eps is wrong.
+    Offsets short of the fold are harmless because the Lanczos stopping test
+    is relative to the arc width, not to |lambda|.
+    """
+    t = 3.41e-3
+    p, ops, seq, c, cc, ss = setup(3, 3, 4, t)
+    ex = exact_eps(dense_U(p, seq, c, t), dense_V(p, t))
+    good = certify.certify(ops, seq, c, t, cc, ss, phase=0.0)["eps_spec"]
+    assert abs(good / ex - 1) < 1e-6, (good, ex)
+    # the training phase of U' = e^{ig} U recovers g
+    g = 0.3
+    mk = functools.partial(sv.haar_state, p.n, 3, "cpu")
+    u = ansatz.apply_circuit(mk(), ops, seq, c, t) * np.exp(1j * g)
+    v = target.evolve(mk(), ops, t, cc, ss)
+    assert abs(np.angle(sv.vdot(v, u)) - g) < 1e-6
+    # old sign with g = pi/4: W centred at -i, arcsin folds, eps is wrong
+    folded = certify.certify(ops, seq, c, t, cc, ss, phase=-np.pi / 2)["eps_spec"]
+    assert abs(folded / ex - 1) > 0.1, folded
+    # offsets well short of the fold (here 1e4 x the arc width) do not matter
+    w = 4 * np.arcsin(ex / 2)
+    for ph in (-100 * w, -1e4 * w):
+        off = certify.certify(ops, seq, c, t, cc, ss, phase=ph)["eps_spec"]
+        assert abs(off / ex - 1) < 1e-5, (ph, off, ex)
+
+
 def test_default_tolerance_is_close_and_below():
     """With the production stopping rule the estimate sits just under the truth."""
     p, ops, seq, c, cc, ss = setup(3, 3, 4, 3.41e-3)

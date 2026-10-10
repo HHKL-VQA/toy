@@ -14,13 +14,13 @@ import sys
 
 
 def fmt(x, spec=".3e"):
-    return "—" if x is None else format(x, spec)
+    return "-" if x is None else format(x, spec)
 
 
 def load(out_dir):
     runs = []
     for path in sorted(glob.glob(os.path.join(out_dir, "*_s*_t*_L*.json"))):
-        with open(path) as fh:
+        with open(path, encoding="utf-8") as fh:
             R = json.load(fh)
         if "train" in R:
             R["_path"] = path
@@ -55,14 +55,14 @@ def table(runs):
         for R in sorted(rs, key=lambda r: r["L"]):
             tr, ho, ce = R["train"], R.get("heldout", {}), R.get("certify", {})
             its = " / ".join(",".join(str(r["iters"]) for r in ce[w]["runs"])
-                             if w in ce else "—" for w in ("init", "trained"))
-            agree = "/".join(str(ce[w]["start_vectors_agree"]) if w in ce else "—"
+                             if w in ce else "-" for w in ("init", "trained"))
+            agree = "/".join(str(ce[w]["start_vectors_agree"]) if w in ce else "-"
                              for w in ("init", "trained"))
             hd = ho.get("rel_diff_final")
             lines.append(
                 f"| {R['L']} | {tr['J0']:.3e} | {tr['J_final']:.3e} | {tr['iters']} "
                 f"| {tr['stop_reason'].split(':')[0]} | {tr['drift_max']:.1e} "
-                f"| {'—' if hd is None else f'{100 * hd:.2f} %'} | {its} | {agree} "
+                f"| {'-' if hd is None else f'{100 * hd:.2f} %'} | {its} | {agree} "
                 f"| {R['env']['wall_total_s'] / 3600:.2f} h |")
         lines.append("")
     return "\n".join(lines)
@@ -104,7 +104,7 @@ def main():
         print(f"FAIL report: no result JSON in {a.out}/")
         sys.exit(1)
     text = "# Results\n\n" + table(runs)
-    with open(os.path.join(a.out, "report.md"), "w") as fh:
+    with open(os.path.join(a.out, "report.md"), "w", encoding="utf-8") as fh:
         fh.write(text)
     print(text)
     if a.plot:

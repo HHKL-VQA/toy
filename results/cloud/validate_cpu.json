@@ -1,0 +1,63 @@
+{
+ "device": "cpu",
+ "checks": [
+  {
+   "name": "(a) 2x3 L=2 trained <= Trotter",
+   "passed": true,
+   "J0": 1.0203173515527113e-13,
+   "J_final": 5.95103635084475e-14,
+   "eps_init": 1.3227982848667593e-06,
+   "eps_trained": 1.0414032912495235e-06
+  },
+  {
+   "name": "(a) 2x3 L=4 trained <= Trotter",
+   "passed": true,
+   "J0": 6.376903814603362e-15,
+   "J_final": 3.656323532029961e-15,
+   "eps_init": 3.306968974210594e-07,
+   "eps_trained": 2.6148338148957463e-07
+  },
+  {
+   "name": "(a) 3x3 L=2 trained <= Trotter",
+   "passed": true,
+   "J0": 2.5525670181588407e-13,
+   "J_final": 1.8104698929810117e-13,
+   "eps_init": 2.291395956900345e-06,
+   "eps_trained": 1.9618566241304926e-06
+  },
+  {
+   "name": "(a) 3x3 L=4 trained <= Trotter",
+   "passed": true,
+   "J0": 1.595311336978165e-14,
+   "J_final": 1.1314643325211829e-14,
+   "eps_init": 5.728354613273224e-07,
+   "eps_trained": 4.904309218865119e-07
+  },
+  {
+   "name": "(b) 2x3 t=0.05 L=10: S4 ~7.6e-6, HVA ~2x better",
+   "passed": true,
+   "eps_S4": 7.574437834197728e-06,
+   "eps_HVA": 3.436781929135207e-06,
+   "improvement": 2.2039332114690424
+  },
+  {
+   "name": "(c) 4x4 L=2 M=4 held-out vs train",
+   "passed": true,
+   "J_train": 4.577003618443194e-13,
+   "J_heldout": 4.558308423388896e-13,
+   "rel_diff": 0.004084592587815455,
+   "n": 16
+  }
+ ],
+ "wall_s": 95.0147979259491,
+ "env": {
+  "host": "vm",
+  "gpu": "cpu",
+  "devices": [
+   "cpu"
+  ],
+  "torch": "2.14.1+cu130",
+  "python": "3.13.16",
+  "git": "da95cae"
+ }
+}

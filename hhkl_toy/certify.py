@@ -94,8 +94,11 @@ def certify(ops_list, seq, c, t, cc, ss, phase=0.0, seed=1, max_iter=300,
 
 def certify_two(ops_list, seq, c, t, cc, ss, phase=0.0, seeds=(1, 2), agree_tol=1e-3,
                 **kw):
-    """Two start vectors; eps_spec is the larger (Ritz values underestimate)."""
+    """One run per start vector; eps_spec is the largest (Ritz values underestimate).
+
+    start_vectors_agree is None with a single seed.
+    """
     runs = [certify(ops_list, seq, c, t, cc, ss, phase, seed=s, **kw) for s in seeds]
     e = [r["eps_spec"] for r in runs]
-    agree = abs(e[0] - e[1]) <= agree_tol * max(e)
+    agree = (max(e) - min(e) <= agree_tol * max(e)) if len(e) > 1 else None
     return dict(eps_spec=max(e), runs=runs, start_vectors_agree=agree)

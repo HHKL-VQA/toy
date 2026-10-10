@@ -5,3 +5,5 @@ __pycache__/
 *.npy
 *.npz
 *.pt
+# per-iteration training checkpoints (resume state, not results)
+ckpt/

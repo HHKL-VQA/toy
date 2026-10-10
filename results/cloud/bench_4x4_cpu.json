@@ -1,0 +1,48 @@
+{
+ "patch": "4x4",
+ "n": 16,
+ "L": 10,
+ "t": 0.00341,
+ "devices": [
+  "cpu"
+ ],
+ "vector_GB": 0.001048576,
+ "ops_s": 0.020967960357666016,
+ "ops_GB": null,
+ "bond_s": 0.0004452069600423177,
+ "slot_A_s": 0.0028679370880126953,
+ "slot_F_s": 0.015320301055908203,
+ "apply_H_s": 0.019748369852701824,
+ "forward_s": 0.12160944938659668,
+ "roundtrip_err": 1.4142585151983842e-16,
+ "range_s": 7.528730154037476,
+ "range_iters": 112,
+ "spectral_range": [
+  -37.760219797130375,
+  26.269053132716397
+ ],
+ "cheb_terms": 8,
+ "vpsi_s": 0.4367256164550781,
+ "vpsi_GB": null,
+ "adjoint_s": 1.0592293739318848,
+ "adjoint_GB_one_state": null,
+ "drift": 8.260360914925664e-15,
+ "cert_matvec_s": 1.1439306735992432,
+ "cert_GB": null,
+ "estimate": {
+  "train_iter_s": 4.660609245300293,
+  "train_GB_per_device": null,
+  "cert_300_iters_h": 0.09532755613327026,
+  "vpsi_all_states_s": 2.6203536987304688
+ },
+ "env": {
+  "host": "vm",
+  "gpu": "cpu",
+  "devices": [
+   "cpu"
+  ],
+  "torch": "2.14.1+cu130",
+  "python": "3.13.16",
+  "git": "da95cae"
+ }
+}

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+# large arrays stay local; result JSON and logs are committed (PLAN.md §5)
+*.npy
+*.npz
+*.pt

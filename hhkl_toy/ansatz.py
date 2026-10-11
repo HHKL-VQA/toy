@@ -19,6 +19,7 @@ from .lattice import COLORS
 FORWARD = COLORS + ("F",)
 BACKWARD = tuple(reversed(FORWARD))
 S4_U = 1.0 / (4.0 - 4.0 ** (1.0 / 3.0))
+Y4_W = 1.0 / (2.0 - 2.0 ** (1.0 / 3.0))     # Yoshida / Forest-Ruth 3-stage 4th order
 
 
 def slots(L):
@@ -52,7 +53,8 @@ def layer_weights(L, init):
 
     S2(tau) is one forward plus one backward layer with every slot at tau/2.
     'S2^r' (L = 2r) repeats S2(t/r); 'S4' (L = 10m) is m copies of
-    S2(ut) S2(ut) S2((1-4u)t) S2(ut) S2(ut) at t/m.
+    S2(ut) S2(ut) S2((1-4u)t) S2(ut) S2(ut) at t/m; 'Y4' (L = 6m) is m copies of
+    the 3-stage 4th-order S2(wt) S2((1-2w)t) S2(wt), w = 1/(2 - 2^{1/3}).
     """
     if init.startswith("S2"):
         r = int(init.split("^")[1]) if "^" in init else 1
@@ -64,6 +66,12 @@ def layer_weights(L, init):
             raise ValueError(f"S4 needs L divisible by 10, got L = {L}")
         m = L // 10
         s = [S4_U, S4_U, 1.0 - 4.0 * S4_U, S4_U, S4_U] * m
+        return [s[l // 2] / (2 * m) for l in range(L)]
+    if init == "Y4":
+        if L % 6:
+            raise ValueError(f"Y4 needs L divisible by 6, got L = {L}")
+        m = L // 6
+        s = [Y4_W, 1.0 - 2.0 * Y4_W, Y4_W] * m
         return [s[l // 2] / (2 * m) for l in range(L)]
     raise ValueError(f"unknown init {init!r}")
 

@@ -1,0 +1,3 @@
+4x4 L=6 Y4 long : eps 1.964e-09 -> 1.057e-09 (x1.86) J/J0 0.3301 its 43 (scipy: CONVERGENCE: RELAT)
+4x4 L=8 Y4+id   : eps 1.964e-09 -> 1.056e-09 (x1.86) J/J0 0.3285 its 50 (plateau: <0.001 relative )
+4x4 L=8 S2^4    : eps 3.029e-07 -> 1.096e-07 (x2.76) J/J0 0.1516 its 62 (plateau: <0.001 relative )

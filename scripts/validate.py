@@ -49,7 +49,7 @@ def main():
     dtag = device.replace(":", "")
     run_dir = os.path.join(a.out, f"validate_{dtag}")
     os.makedirs(run_dir, exist_ok=True)
-    t_start = time.time()
+    t_start = time.perf_counter()
     checks = []
 
     def log(msg):
@@ -105,7 +105,7 @@ def main():
         traceback.print_exc()
         record("exception", False, error=traceback.format_exc().splitlines()[-1])
 
-    out = dict(device=device, checks=checks, wall_s=time.time() - t_start,
+    out = dict(device=device, checks=checks, wall_s=time.perf_counter() - t_start,
                env=block.env_info([device]))
     path = os.path.join(a.out, f"validate_{dtag}.json")
     with open(path, "w", encoding="utf-8") as fh:

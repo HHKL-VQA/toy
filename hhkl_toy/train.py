@@ -133,7 +133,7 @@ def fd_hessian(f, c0, J0, h=1e-4, central=False, cache=None, log=print):
                 json.dump(rec, fh)
             os.replace(cache + ".tmp", cache)
 
-    t0 = time.time()
+    t0 = time.perf_counter()
     if not central and rec["g0"] is None:
         rec["g0"] = list(f(list(c0))[1])
         save()
@@ -149,7 +149,7 @@ def fd_hessian(f, c0, J0, h=1e-4, central=False, cache=None, log=print):
             col = (gp - np.asarray(rec["g0"])) / (h * J0)
         rec["cols"][i] = list(col)
         save()
-        log(f"  Hessian column {i + 1}/{P} ({time.time() - t0:.0f}s)")
+        log(f"  Hessian column {i + 1}/{P} ({time.perf_counter() - t0:.0f}s)")
     H = np.array([rec["cols"][i] for i in range(P)]).T
     return 0.5 * (H + H.T)
 
@@ -171,7 +171,7 @@ def lbfgs(f, c0, J0, B=None, maxiter=500, window=30, min_rel=1e-3, ftol=1e-15,
     window <= 0 disables the plateau rule.  Returns a dict (stored as 'train' in
     the result JSON).
     """
-    t_start = time.time()
+    t_start = time.perf_counter()
     hist, it0, wall0 = [], 0, 0.0
     if resume:
         header, its = read_checkpoint(ckpt)
@@ -206,7 +206,7 @@ def lbfgs(f, c0, J0, B=None, maxiter=500, window=30, min_rel=1e-3, ftol=1e-15,
     def callback(intermediate_result):
         k = hist[-1][0] + 1
         J = float(intermediate_result.fun) * J0
-        wall = wall0 + time.time() - t_start
+        wall = wall0 + time.perf_counter() - t_start
         hist.append([k, J, wall])
         c = c0 + B @ intermediate_result.x
         _append(ckpt, dict(type="iter", iter=k, J=J, wall=wall, c=list(map(float, c))))
@@ -235,4 +235,4 @@ def lbfgs(f, c0, J0, B=None, maxiter=500, window=30, min_rel=1e-3, ftol=1e-15,
     return dict(J0=J0, J_final=best["J"], c_final=best["c"], iters=hist[-1][0],
                 evals=stats["evals"], stop_reason=state["stop"], scipy_message=res_msg,
                 history=hist, drift_max=stats["drift_max"],
-                wall_s=wall0 + time.time() - t_start)
+                wall_s=wall0 + time.perf_counter() - t_start)

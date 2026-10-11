@@ -49,12 +49,19 @@ def peak(dev):
 
 
 def timed(fn, dev, reps=1):
+    """Mean time of fn over reps calls (perf_counter: immune to wall-clock jumps).
+
+    Repeated (cheap) kernels get one untimed warm-up call first, so CUDA
+    start-up does not land in the first sample.
+    """
+    if reps > 1:
+        fn()
     sync(dev)
-    t0 = time.time()
+    t0 = time.perf_counter()
     for _ in range(reps):
         out = fn()
     sync(dev)
-    return (time.time() - t0) / reps, out
+    return (time.perf_counter() - t0) / reps, out
 
 
 def bench(patch_name, devices, L, t, M, reps, log):

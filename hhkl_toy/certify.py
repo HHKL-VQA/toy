@@ -67,7 +67,7 @@ def certify(ops_list, seq, c, t, cc, ss, phase=0.0, seed=1, max_iter=300,
     ops_list: [Ops] on one device or [Ops, Ops] on two; cc, ss: Chebyshev
     centre and half-width; seed: start vector.
     """
-    t0 = time.time()
+    t0 = time.perf_counter()
     if not isinstance(ops_list, (list, tuple)):
         ops_list = [ops_list]
     ops = ops_list[0]
@@ -76,7 +76,7 @@ def certify(ops_list, seq, c, t, cc, ss, phase=0.0, seed=1, max_iter=300,
     def on_iter(k, lo, hi):
         if log is not None and (k % 10 == 0 or k == 1):
             log(f"  certify it {k:4d}  lam_min {lo:+.10e}  lam_max {hi:+.10e}"
-                f"  ({time.time() - t0:.0f}s)")
+                f"  ({time.perf_counter() - t0:.0f}s)")
 
     try:
         r = target.lanczos(matvec, sv.haar_state(ops.n, 20_000 + seed, ops.device),
@@ -96,7 +96,7 @@ def certify(ops_list, seq, c, t, cc, ss, phase=0.0, seed=1, max_iter=300,
                 lam_min=r["lam_min"], width=width, max_abs_delta=max_delta,
                 iters=r["iters"],
                 converged=r["converged"], phase=phase, seed=seed,
-                ritz_history=r["history"], wall_s=time.time() - t0)
+                ritz_history=r["history"], wall_s=time.perf_counter() - t0)
 
 
 def certify_two(ops_list, seq, c, t, cc, ss, phase=0.0, seeds=(1, 2), agree_tol=1e-3,

@@ -65,6 +65,9 @@ def dense_formula(p, t, init):
     if init == "S4":
         u = ansatz.S4_U
         steps = [u * t, u * t, (1 - 4 * u) * t, u * t, u * t]
+    elif init == "Y4":
+        w = ansatz.Y4_W
+        steps = [w * t, (1 - 2 * w) * t, w * t]
     else:
         r = int(init.split("^")[1])
         steps = [t / r] * r
@@ -163,6 +166,25 @@ def test_order_of_accuracy():
     r4 = err(10, 0.1) / err(10, 0.05)        # 30.7
     assert 7.0 < r2 < 9.0, r2
     assert 28.0 < r4 < 36.0, r4
+
+
+def test_y4_init():
+    """L = 6 at Y4 angles is the 3-stage 4th-order formula (error ~ t^5)."""
+    p = Patch(3, 3, 0)
+    for t in (0.05, 0.3):
+        assert np.abs(circuit_unitary(p, 6, "Y4", t) - dense_formula(p, t, "Y4")).max() < TOL
+    w, Q = np.linalg.eigh(dense_H(p))
+
+    def err(t):
+        V = (Q * np.exp(-1j * w * t)) @ Q.conj().T
+        return np.linalg.norm(circuit_unitary(p, 6, "Y4", t) - V, 2)
+
+    # Y4's sub-steps are large (1 - 2w = -1.70), so it turns asymptotic later than S4
+    assert 28.0 < err(0.05) / err(0.025) < 36.0              # 30.7
+    c = ansatz.trotter_params(ansatz.slots(6), 6, "Y4")
+    for g in ansatz.FORWARD:            # every group still carries total time t
+        tot = sum(c[s["idx"][0]] for s in ansatz.slots(6) if s["g"] == g)
+        assert abs(tot - 1.0) < 1e-14, g
 
 
 def test_inverse_circuit():

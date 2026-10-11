@@ -135,8 +135,14 @@ python scripts/run_block.py --patch 4x6 --t 3.41e-3 --L 2 4 6 10    # 24큐비�
 
 - 통과 기준: 끝까지 오류 없이 실행되고 마지막 줄이 `PASS`, `results/4x5_s0_t0.00341_L{2,4,6,10}.json`이 완성됨(`"complete": true`).
 - 기본 학습은 자기 헤시안으로 전처리한다(`--precond own`). 기울기 평가가 $P+1$회 더 든다($L$=2·4·6·10에서 18·33·48·78회).
-- **전처리 비교(권장):** 같은 패치를 `--precond 3x4 --out results/pre3x4`로 한 번 더 돌린다. 이것은 작은 패치의 헤시안을 옮겨 쓰는 방법이다. 결과(반복 수, $J$)가 비슷하면 30큐비트에서도 헤시안 비용을 아낄 수 있다(PLAN.md §11).
+- 작은 패치의 헤시안을 옮겨 쓸 수 있다(`--precond 3x4`). 4×4에서 3×3·3×4 헤시안으로 같은 결과가 나오는 것을 확인했다.
 - `bench.py`의 `train it ~…s`와 `cert 300 its ~…h`로 30큐비트 비용을 외삽한다. 벡터 크기에 거의 비례한다.
+- **2026-10-11 결과:** 4×5·4×6 완료. 분석은 [`results/analysis_stage7_8.md`](results/analysis_stage7_8.md), 요약은 PLAN.md §1.4에 있다.
+- (선택) $L$=6을 4차 Y4 초기값으로 한 번 더 돌려 외삽을 확인한다. 결과 파일 이름에 `_Y4`가 붙어서 기본 $L$=6 결과를 덮지 않는다.
+
+  ```bash
+  python scripts/run_block.py --patch 4x6 --t 3.41e-3 --L 6 --init Y4     # 약 45분
+  ```
 
 ## 7. Stage 9: H200 준비
 
@@ -173,9 +179,13 @@ python scripts/bench.py --n 26 28 30 --devices cuda:0 cuda:1
 
 ```bash
 tmux new -s hva
-python scripts/run_block.py --patch 5x6 --seed 0 --t 3.41e-3 --L 2 4 6 10 --devices cuda:0 cuda:1
+python scripts/run_block.py --patch 5x6 --seed 0 --t 3.41e-3 --L 2 4 6 10 --precond 4x5 --devices cuda:0 cuda:1
+python scripts/run_block.py --patch 5x6 --seed 0 --t 3.41e-3 --L 6 --init Y4 --precond 4x5 --devices cuda:0 cuda:1
 # 중단되었으면 같은 명령에 --resume
 ```
+
+- `--precond 4x5`: 헤시안을 20큐비트 패치에서 구해 옮겨 쓴다. 몇 분이면 되고, 자기 헤시안(`--precond own`, 기본값)보다 약 2.6시간 빠르다. 결과가 같다는 것은 PLAN.md §1.4에 있다.
+- 두 번째 줄은 $L$=6을 4차 Y4 초기값으로 학습한다(`..._L6_Y4.json`). 5×6 예측은 $t^\star$에서 $\epsilon_\text{blk}$의 약 1.4배이고, $0.925\,t^\star$($t$=3.15e-3, `--eps-blk 1.58e-9`)에서 통과한다(`results/analysis_stage7_8.md` §3.5).
 
 - $L$을 2 → 4 → 6 → 10 순서로 처리한다. 각 $L$은 다음 순서로 진행한다.
   1. 헤시안 전처리
@@ -189,7 +199,8 @@ python scripts/run_block.py --patch 5x6 --seed 0 --t 3.41e-3 --L 2 4 6 10 --devi
 - `--resume`: 끝난 단계는 건너뛴다. 헤시안은 캐시된 열부터 이어서 계산하고, 학습은 마지막 체크포인트의 $c$에서 같은 전처리로 새 L-BFGS를 시작한다. 완료된 조합은 `--force` 없이는 다시 하지 않는다.
 - 통과 기준: 각 $L$의 JSON에 `"complete": true`, 인증 시작 벡터 일치(`start_vectors_agree`), drift ≤1e-10, 마지막 줄 `PASS`.
 - 종료 규칙(PLAN.md §4.5): 최근 30회 동안 개선 < 0.1 %, 500회, scipy 자체 종료 중 먼저 오는 것. `--precond none`이면 정체 창이 100회다.
-- 시간: Stage 9 실측으로 바꾼다. 대역폭 모델로는 학습 전체 약 6시간, 인증 약 1~2시간으로 어림된다. PLAN.md의 이전 추정은 1~3일이었다.
+- 시간: 24큐비트 실측에서 외삽하면 4개 $L$에 약 5시간(`--precond 4x5`), 자기 헤시안이면 약 7.5시간이다. Y4 실행은 약 1~1.5시간이 더 든다. Stage 9 실측으로 확인한다.
+- 예측(5×6, 학습 후 $\epsilon_\text{spec}$): $L$=2 7.8e-6, $L$=4 1.0e-6, $L$=6 4.3e-7, $L$=6 Y4 2.3e-9, $L$=10 9.6e-11. 2배 이상 다르면 그 자체가 중요한 결과다.
 - 인증 시간을 줄이려면 `--cert-seeds 1`(시작 벡터 1개)로 둘 수 있다. 기본은 2개다(PLAN.md §4.6).
 - 보조 실험(선택): `--t 1.35e-3 --L <가장 좋은 L>`, 무질서 `--seed 1`, `--seed 2`.
 

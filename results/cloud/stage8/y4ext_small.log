@@ -1,0 +1,6 @@
+3x3 L=6 Y4 long : eps 8.868e-10 -> 4.420e-10 (x2.01) J/J0 0.2788 its 31 (scipy: ABNORMAL: )
+3x3 L=8 Y4+id   : eps 8.868e-10 -> 4.413e-10 (x2.01) J/J0 0.2770 its 52 (plateau: <0.001 relative )
+3x3 L=8 S2^4    : eps 1.432e-07 -> 5.015e-08 (x2.86) J/J0 0.1336 its 81 (plateau: <0.001 relative )
+3x4 L=6 Y4 long : eps 1.290e-09 -> 7.176e-10 (x1.80) J/J0 0.3089 its 63 (scipy: ABNORMAL: )
+3x4 L=8 Y4+id   : eps 1.290e-09 -> 7.179e-10 (x1.80) J/J0 0.3059 its 106 (plateau: <0.001 relative )
+3x4 L=8 S2^4    : eps 1.970e-07 -> 7.343e-08 (x2.68) J/J0 0.1439 its 86 (plateau: <0.001 relative )

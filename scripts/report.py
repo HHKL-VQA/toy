@@ -60,7 +60,7 @@ def table(runs):
                              for w in ("init", "trained"))
             hd = ho.get("rel_diff_final")
             lines.append(
-                f"| {R['L']} | {tr['J0']:.3e} | {tr['J_final']:.3e} | {tr['iters']} "
+                f"| {R['L']} ({R['init']}) | {tr['J0']:.3e} | {tr['J_final']:.3e} | {tr['iters']} "
                 f"| {tr['stop_reason'].split(':')[0]} | {tr['drift_max']:.1e} "
                 f"| {'-' if hd is None else f'{100 * hd:.2f} %'} | {its} | {agree} "
                 f"| {R['env']['wall_total_s'] / 3600:.2f} h |")
@@ -76,11 +76,12 @@ def plot(runs, path):
     groups = {}
     for R in runs:
         if "result" in R:
-            groups.setdefault((R["patch"], R["seed"], R["t"]), []).append(R)
-    for (patch, seed, t), rs in sorted(groups.items()):
+            family = "Y4" if R["init"].startswith("Y4") else ""      # separate series
+            groups.setdefault((R["patch"], R["seed"], R["t"], family), []).append(R)
+    for (patch, seed, t, family), rs in sorted(groups.items()):
         rs = sorted(rs, key=lambda r: r["cnot"])
         x = [r["cnot"] for r in rs]
-        lab = f"{patch} s{seed} t={t:g}"
+        lab = f"{patch} s{seed} t={t:g}" + (f" {family}" if family else "")
         ax.plot(x, [r["result"]["eps_spec_init"] for r in rs], "o--", label=f"Trotter, {lab}")
         ax.plot(x, [r["result"]["eps_spec_reported"] for r in rs], "s-", label=f"trained, {lab}")
         if rs[0].get("eps_blk"):

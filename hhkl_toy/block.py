@@ -26,8 +26,11 @@ EPS_BLK = {3.41e-3: 1.71e-9, 1.35e-3: 6.75e-10}
 TRAIN_SEED0, HELDOUT_SEED0 = 101, 201
 
 
-def tag(patch, seed, t, L):
-    return f"{patch}_s{seed}_t{t:g}_L{L}"
+def tag(patch, seed, t, L, init=None):
+    """Result name; a non-default init (e.g. Y4 at L=6) is appended so it does
+    not overwrite the default run of the same L."""
+    extra = f"_{init.replace('^', '')}" if init and init != ansatz.default_init(L) else ""
+    return f"{patch}_s{seed}_t{t:g}_L{L}{extra}"
 
 
 def env_info(devices):
@@ -38,8 +41,11 @@ def env_info(devices):
                              text=True, cwd=os.path.dirname(__file__)).stdout.strip()
     except OSError:
         git = ""
+    peak = [round(torch.cuda.max_memory_allocated(torch.device(d)) / 1e9, 3)
+            for d in devices if d.startswith("cuda")]
     return dict(host=socket.gethostname(), gpu=gpus or "cpu", devices=devices,
-                torch=torch.__version__, python=platform.python_version(), git=git)
+                torch=torch.__version__, python=platform.python_version(), git=git,
+                gpu_peak_GB=peak or None)
 
 
 def _release():
@@ -61,13 +67,13 @@ class Setup:
         self.t = t
         self.devices = devices
         self.ops = [sv.Ops(self.patch, d, diag=diag) for d in devices]
-        t0 = time.time()
+        t0 = time.perf_counter()
         rr = target.spectral_range(self.ops[0])
         self.emin, self.emax = rr["emin"], rr["emax"]
         self.cc, self.ss = target.cheb_params(self.emin, self.emax)
         self.K = target.cheb_terms(self.ss * t)
         log(f"[{self.patch.name} seed {seed}] spectrum [{self.emin:.6f}, {self.emax:.6f}] "
-            f"({rr['iters']} Lanczos its, {time.time() - t0:.1f}s), "
+            f"({rr['iters']} Lanczos its, {time.perf_counter() - t0:.1f}s), "
             f"Chebyshev s*t = {self.ss * t:.4f}, K = {self.K}")
 
     def states(self, seeds):
@@ -106,11 +112,11 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, precond="own",
         plateau_window = 100 if precond == "none" else 30
     p, t = setup.patch, setup.t
     init = init or ansatz.default_init(L)
-    name = tag(p.name, p.seed, t, L)
+    name = tag(p.name, p.seed, t, L, init)
     os.makedirs(os.path.join(out_dir, "ckpt"), exist_ok=True)
     path = os.path.join(out_dir, name + ".json")
     ckpt = os.path.join(out_dir, "ckpt", name + ".jsonl")
-    wall0 = time.time()
+    wall0 = time.perf_counter()
 
     R = {}
     if os.path.exists(path) and not force:
@@ -138,7 +144,7 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, precond="own",
 
     def save():
         R["env"] = env_info(setup.devices)
-        R["env"]["wall_total_s"] = prior_wall + time.time() - wall0
+        R["env"]["wall_total_s"] = prior_wall + time.perf_counter() - wall0
         with open(path + ".tmp", "w", encoding="utf-8") as fh:
             json.dump(R, fh, indent=1)
         os.replace(path + ".tmp", path)
@@ -152,14 +158,14 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, precond="own",
         log(f"[{name}] J0 = {J0:.6e}  (eps_rHS {adjoint.eps_rhs(J0):.3e})")
         B = None
         if precond != "none":
-            th = time.time()
+            th = time.perf_counter()
             H = hessian(setup, seq, c0, f, J0, precond, M,
                         os.path.join(out_dir, "ckpt", f"{name}.hess_{precond}.json"), log)
             B, eig = train.preconditioner(H)
             R["precond"] = dict(source=precond, hessian_eigenvalues=list(map(float, eig)),
-                                wall_s=time.time() - th)
+                                wall_s=time.perf_counter() - th)
             log(f"[{name}] preconditioner from {precond}: Hessian eigenvalues "
-                f"{eig[-1]:.2e} .. {eig[0]:.2e} ({time.time() - th:.0f}s)")
+                f"{eig[-1]:.2e} .. {eig[0]:.2e} ({time.perf_counter() - th:.0f}s)")
         tr = train.lbfgs(f, c0, J0, B=B, maxiter=maxiter, window=plateau_window,
                          min_rel=plateau_rel, ckpt=ckpt, resume=resume, log=log)
         Jf, _, inff = f(tr["c_final"], need_grad=False)

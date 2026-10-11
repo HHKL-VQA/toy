@@ -1,0 +1,50 @@
+{
+ "patch": "4x6",
+ "n": 24,
+ "L": 10,
+ "t": 0.00341,
+ "devices": [
+  "cuda:0"
+ ],
+ "vector_GB": 0.268435456,
+ "ops_s": 0.0541071891784668,
+ "ops_GB": 0.142803456,
+ "bond_s": 0.01227108637491862,
+ "slot_A_s": 0.05521074930826823,
+ "slot_F_s": 0.003912448883056641,
+ "apply_H_s": 0.06621797879536946,
+ "forward_s": 1.5037717819213867,
+ "roundtrip_err": 1.542404416792893e-17,
+ "range_s": 11.859204053878784,
+ "range_iters": 153,
+ "spectral_range": [
+  -57.601046143349876,
+  40.69155472390224
+ ],
+ "cheb_terms": 9,
+ "vpsi_s": 0.6721677780151367,
+ "vpsi_GB": 0.948109312,
+ "adjoint_s": 29.33828091621399,
+ "adjoint_GB_one_state": 1.753451008,
+ "drift": 1.286544111378208e-14,
+ "cert_matvec_s": -18.562363386154175,
+ "cert_GB": 1.484980224,
+ "estimate": {
+  "train_iter_s": 129.08843603134156,
+  "train_GB_per_device": 2.558757376,
+  "cert_300_iters_h": -1.546863615512848,
+  "vpsi_all_states_s": 4.03300666809082
+ },
+ "env": {
+  "host": "HyunwooDesktop",
+  "gpu": [
+   "NVIDIA GeForce RTX 2060"
+  ],
+  "devices": [
+   "cuda:0"
+  ],
+  "torch": "2.14.1+cu130",
+  "python": "3.12.3",
+  "git": "773cbf3"
+ }
+}

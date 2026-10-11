@@ -1,0 +1,17 @@
+14:44:18 check_M 4x4 (n=16) L=4 t=0.00341 on cpu
+14:44:22   Trotter init: {'J_heldout': 4.1560165714566613e-14, 'J_rel_spread': 0.007107142840960052, 'eps_spec': 1.2117561905771791e-06}
+14:44:34   M= 1 set 0: J_train 8.1963e-15  J_heldout 8.1905e-15  eps_spec 4.7937e-07  (43 its)
+14:44:46   M= 1 set 1: J_train 8.1592e-15  J_heldout 8.1915e-15  eps_spec 4.7856e-07  (42 its)
+14:45:20   M= 4 set 0: J_train 8.2063e-15  J_heldout 8.1890e-15  eps_spec 4.7831e-07  (46 its)
+14:45:52   M= 4 set 1: J_train 8.1861e-15  J_heldout 8.1889e-15  eps_spec 4.7865e-07  (43 its)
+14:46:59   M= 8 set 0: J_train 8.2285e-15  J_heldout 8.1884e-15  eps_spec 4.7829e-07  (48 its)
+14:47:57   M= 8 set 1: J_train 8.1924e-15  J_heldout 8.1886e-15  eps_spec 4.7859e-07  (39 its)
+
+| M | J_heldout (mean over sets) | vs M=8 | eps_spec | vs M=8 | train-heldout gap |
+|---|---|---|---|---|---|
+| 1 | 8.1910e-15 | +0.03 % | 4.7897e-07 | +0.11 % | -0.16 % |
+| 4 | 8.1890e-15 | +0.01 % | 4.7848e-07 | +0.01 % | +0.09 % |
+| 8 | 8.1885e-15 | +0.00 % | 4.7844e-07 | +0.00 % | +0.27 % |
+
+per-state relative spread of J at n=16: 3.821e-03 (~2^(-n/2) scaling -> 3.0e-05 at n=30)
+PASS check_M 4x4 L=4: M=4 within +0.01 % (loss) / +0.01 % (eps) of M=8

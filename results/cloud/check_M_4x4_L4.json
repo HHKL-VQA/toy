@@ -1,0 +1,97 @@
+{
+ "patch": "4x4",
+ "n": 16,
+ "L": 4,
+ "t": 0.00341,
+ "init": {
+  "J_heldout": 4.1560165714566613e-14,
+  "J_rel_spread": 0.007107142840960052,
+  "eps_spec": 1.2117561905771791e-06
+ },
+ "rows": [
+  {
+   "M": 1,
+   "set": 0,
+   "J_train": 8.196253799717223e-15,
+   "iters": 43,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.190458213166524e-15,
+   "J_rel_spread": 0.003809700167882166,
+   "eps_spec": 4.793734702551871e-07
+  },
+  {
+   "M": 1,
+   "set": 1,
+   "J_train": 8.15922513064687e-15,
+   "iters": 42,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.19154484413129e-15,
+   "J_rel_spread": 0.003859751545265616,
+   "eps_spec": 4.785589731700525e-07
+  },
+  {
+   "M": 4,
+   "set": 0,
+   "J_train": 8.206261895931947e-15,
+   "iters": 46,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.188992920658632e-15,
+   "J_rel_spread": 0.00381097776820286,
+   "eps_spec": 4.783066926492342e-07
+  },
+  {
+   "M": 4,
+   "set": 1,
+   "J_train": 8.186073187400447e-15,
+   "iters": 43,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.188944250169937e-15,
+   "J_rel_spread": 0.0038066259985858465,
+   "eps_spec": 4.786472248276391e-07
+  },
+  {
+   "M": 8,
+   "set": 0,
+   "J_train": 8.228512120260813e-15,
+   "iters": 48,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.188392860081268e-15,
+   "J_rel_spread": 0.003811796968088455,
+   "eps_spec": 4.78292920888656e-07
+  },
+  {
+   "M": 8,
+   "set": 1,
+   "J_train": 8.192356089225688e-15,
+   "iters": 39,
+   "stop": "plateau: <0.001 relative gain over 30 iterations",
+   "J_heldout": 8.188588140985175e-15,
+   "J_rel_spread": 0.003824616218067891,
+   "eps_spec": 4.785856399078432e-07
+  }
+ ],
+ "summary": {
+  "1": {
+   "J": 8.191001528648907e-15,
+   "J_vs_ref": 0.0003066533588238496,
+   "eps": 4.789662217126198e-07,
+   "eps_vs_ref": 0.0011013755265485425,
+   "gap": -0.0016189472520694828
+  },
+  "4": {
+   "J": 8.188968585414284e-15,
+   "J_vs_ref": 5.838498329246988e-05,
+   "eps": 4.784769587384367e-07,
+   "eps_vs_ref": 7.87526060896937e-05,
+   "gap": 0.0008791004937565505
+  },
+  "8": {
+   "J": 8.188490500533221e-15,
+   "J_vs_ref": 0.0,
+   "eps": 4.784392803982496e-07,
+   "eps_vs_ref": 0.0,
+   "gap": 0.0026798371372867983
+  }
+ },
+ "per_state_rel_spread": 0.0038205781110154727
+}

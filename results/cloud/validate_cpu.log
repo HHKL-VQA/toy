@@ -1,0 +1,64 @@
+14:54:23 [2x3 seed 0] spectrum [-12.785041, 8.097411] (40 Lanczos its, 0.0s), Chebyshev s*t = 0.0363, K = 7
+14:54:23 [2x3_s0_t0.00341_L2] {'cnot': 42, 'cnot_depth': 18, 'n_params': 17, 'n_slots': 9} init S2^1
+14:54:23 [2x3_s0_t0.00341_L2] J0 = 1.020317e-13  (eps_rHS 4.517e-07)
+14:54:23 [2x3_s0_t0.00341_L2] preconditioner from own: Hessian eigenvalues 1.43e+09 .. -2.08e-07 (0s)
+14:54:24 [2x3_s0_t0.00341_L2] trained: J 1.0203e-13 -> 5.9510e-14 in 3 its (scipy: ABNORMAL: ), drift 8.1e-16
+14:54:24 [2x3_s0_t0.00341_L2] held-out J: 7.4892e-14 -> 5.7763e-14 (train/held-out differ by 2.94 %)
+14:54:24 [2x3_s0_t0.00341_L2] certify init (start vectors [1, 2])
+14:54:24 [2x3_s0_t0.00341_L2] eps_spec(init) = 1.322798e-06  (its [22, 21], agree True)
+14:54:24 [2x3_s0_t0.00341_L2] certify trained (start vectors [1, 2])
+14:54:25 [2x3_s0_t0.00341_L2] eps_spec(trained) = 1.041385e-06  (its [26, 27], agree True)
+14:54:25 PASS (a) 2x3 L=2 trained <= Trotter  {'J0': 1.0203173515011947e-13, 'J_final': 5.951028775137229e-14, 'eps_init': 1.3227982848436632e-06, 'eps_trained': 1.0413854548535262e-06}
+14:54:25 [2x3 seed 0] spectrum [-12.785041, 8.097411] (40 Lanczos its, 0.0s), Chebyshev s*t = 0.0363, K = 7
+14:54:25 [2x3_s0_t0.00341_L4] {'cnot': 75, 'cnot_depth': 33, 'n_params': 32, 'n_slots': 17} init S2^2
+14:54:25 [2x3_s0_t0.00341_L4] J0 = 6.376904e-15  (eps_rHS 1.129e-07)
+14:54:26 [2x3_s0_t0.00341_L4] preconditioner from own: Hessian eigenvalues 3.60e+10 .. -3.11e+02 (1s)
+14:54:28 [2x3_s0_t0.00341_L4] trained: J 6.3769e-15 -> 1.1687e-15 in 41 its (scipy: ABNORMAL: ), drift 1.9e-15
+14:54:28 [2x3_s0_t0.00341_L4] held-out J: 4.6807e-15 -> 9.5809e-16 (train/held-out differ by 18.02 %)
+14:54:28 [2x3_s0_t0.00341_L4] certify init (start vectors [1, 2])
+14:54:28 [2x3_s0_t0.00341_L4] eps_spec(init) = 3.306969e-07  (its [22, 21], agree True)
+14:54:28 [2x3_s0_t0.00341_L4] certify trained (start vectors [1, 2])
+14:54:29 [2x3_s0_t0.00341_L4] eps_spec(trained) = 1.392180e-07  (its [27, 25], agree True)
+14:54:29 PASS (a) 2x3 L=4 trained <= Trotter  {'J0': 6.376903813311885e-15, 'J_final': 1.1686529755964793e-15, 'eps_init': 3.3069689746587033e-07, 'eps_trained': 1.3921798625294116e-07}
+14:54:29 [3x3 seed 0] spectrum [-19.530126, 12.803558] (85 Lanczos its, 0.0s), Chebyshev s*t = 0.0562, K = 7
+14:54:29 [3x3_s0_t0.00341_L2] {'cnot': 72, 'cnot_depth': 24, 'n_params': 17, 'n_slots': 9} init S2^1
+14:54:29 [3x3_s0_t0.00341_L2] J0 = 2.552567e-13  (eps_rHS 7.145e-07)
+14:54:29 [3x3_s0_t0.00341_L2] preconditioner from own: Hessian eigenvalues 5.73e+08 .. -5.59e-09 (0s)
+14:54:30 [3x3_s0_t0.00341_L2] trained: J 2.5526e-13 -> 1.8101e-13 in 5 its (scipy: ABNORMAL: ), drift 1.2e-15
+14:54:30 [3x3_s0_t0.00341_L2] held-out J: 2.5524e-13 -> 1.8172e-13 (train/held-out differ by 0.39 %)
+14:54:30 [3x3_s0_t0.00341_L2] certify init (start vectors [1, 2])
+14:54:31 [3x3_s0_t0.00341_L2] eps_spec(init) = 2.291396e-06  (its [31, 31], agree True)
+14:54:31 [3x3_s0_t0.00341_L2] certify trained (start vectors [1, 2])
+14:54:31 [3x3_s0_t0.00341_L2] eps_spec(trained) = 1.961991e-06  (its [28, 28], agree True)
+14:54:31 PASS (a) 3x3 L=2 trained <= Trotter  {'J0': 2.5525670181419947e-13, 'J_final': 1.810149929977631e-13, 'eps_init': 2.291395945067575e-06, 'eps_trained': 1.9619911855801487e-06}
+14:54:31 [3x3 seed 0] spectrum [-19.530126, 12.803558] (85 Lanczos its, 0.1s), Chebyshev s*t = 0.0562, K = 7
+14:54:31 [3x3_s0_t0.00341_L4] {'cnot': 135, 'cnot_depth': 45, 'n_params': 32, 'n_slots': 17} init S2^2
+14:54:31 [3x3_s0_t0.00341_L4] J0 = 1.595311e-14  (eps_rHS 1.786e-07)
+14:54:33 [3x3_s0_t0.00341_L4] preconditioner from own: Hessian eigenvalues 1.83e+10 .. -2.57e+01 (2s)
+14:54:37 [3x3_s0_t0.00341_L4] trained: J 1.5953e-14 -> 3.1675e-15 in 35 its (scipy: ABNORMAL: ), drift 3.5e-15
+14:54:37 [3x3_s0_t0.00341_L4] held-out J: 1.5952e-14 -> 3.5199e-15 (train/held-out differ by 11.13 %)
+14:54:37 [3x3_s0_t0.00341_L4] certify init (start vectors [1, 2])
+14:54:37 [3x3_s0_t0.00341_L4] eps_spec(init) = 5.728355e-07  (its [31, 31], agree True)
+14:54:37 [3x3_s0_t0.00341_L4] certify trained (start vectors [1, 2])
+14:54:38 [3x3_s0_t0.00341_L4] eps_spec(trained) = 2.295177e-07  (its [35, 40], agree True)
+14:54:38 PASS (a) 3x3 L=4 trained <= Trotter  {'J0': 1.595311336927517e-14, 'J_final': 3.1674976439603803e-15, 'eps_init': 5.72835458382862e-07, 'eps_trained': 2.2951765167025805e-07}
+14:54:38 [2x3 seed 0] spectrum [-12.785041, 8.097411] (40 Lanczos its, 0.0s), Chebyshev s*t = 0.5325, K = 12
+14:54:38 [2x3_s0_t0.05_L10] {'cnot': 174, 'cnot_depth': 78, 'n_params': 77, 'n_slots': 41} init S4
+14:54:38 [2x3_s0_t0.05_L10] J0 = 2.517116e-12  (eps_rHS 2.244e-06)
+14:54:43 [2x3_s0_t0.05_L10] preconditioner from own: Hessian eigenvalues 4.46e+10 .. -6.14e+03 (5s)
+14:55:11 [2x3_s0_t0.05_L10] trained: J 2.5171e-12 -> 1.7964e-13 in 500 its (maxiter 500), drift 4.5e-15
+14:55:12 [2x3_s0_t0.05_L10] held-out J: 1.9379e-12 -> 2.4398e-13 (train/held-out differ by 35.82 %)
+14:55:12 [2x3_s0_t0.05_L10] certify init (start vectors [1, 2])
+14:55:12 [2x3_s0_t0.05_L10] eps_spec(init) = 7.574438e-06  (its [19, 20], agree True)
+14:55:12 [2x3_s0_t0.05_L10] certify trained (start vectors [1, 2])
+14:55:13 [2x3_s0_t0.05_L10] eps_spec(trained) = 1.946085e-06  (its [28, 27], agree True)
+14:55:13 PASS (b) 2x3 t=0.05 L=10: S4 ~7.6e-6, HVA >= ~2x better  {'eps_S4': 7.574437834109042e-06, 'eps_HVA': 1.9460845701950925e-06, 'improvement': 3.8921421762003456}
+14:55:13 [4x4 seed 0] spectrum [-37.760220, 26.269047] (107 Lanczos its, 0.3s), Chebyshev s*t = 0.1114, K = 8
+14:55:13 [4x4_s0_t0.00341_L2] {'cnot': 144, 'cnot_depth': 24, 'n_params': 17, 'n_slots': 9} init S2^1
+14:55:13 [4x4_s0_t0.00341_L2] J0 = 6.657785e-13  (eps_rHS 1.154e-06)
+14:55:17 [4x4_s0_t0.00341_L2] preconditioner from own: Hessian eigenvalues 5.60e+08 .. 3.65e-08 (4s)
+14:55:40 [4x4_s0_t0.00341_L2] trained: J 6.6578e-13 -> 4.5770e-13 in 8 its (scipy: ABNORMAL: ), drift 1.2e-15
+14:55:40 [4x4_s0_t0.00341_L2] held-out J: 6.6141e-13 -> 4.5583e-13 (train/held-out differ by 0.41 %)
+14:55:40 PASS (c) 4x4 L=2 M=4 held-out vs train  {'J_train': 4.576994515799038e-13, 'J_heldout': 4.558303648160959e-13, 'rel_diff': 0.004083655240040399, 'n': 16}
+14:55:40 results in results/cloud/validate_cpu.json
+PASS validate cpu: 6/6 checks

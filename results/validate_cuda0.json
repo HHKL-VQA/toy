@@ -1,0 +1,83 @@
+{
+ "device": "cuda:0",
+ "checks": [
+  {
+   "name": "(a) 2x3 L=2 trained <= Trotter",
+   "passed": true,
+   "J0": 1.252104108448746e-13,
+   "J_final": 6.744428013799238e-14,
+   "eps_init": 1.3227982848050703e-06,
+   "eps_trained": 1.0520485690187871e-06
+  },
+  {
+   "name": "(a) 2x3 L=4 trained <= Trotter",
+   "passed": true,
+   "J0": 7.825559178258862e-15,
+   "J_final": 1.2808625627448242e-15,
+   "eps_init": 3.30696897481571e-07,
+   "eps_trained": 1.3483694503963097e-07
+  },
+  {
+   "name": "(a) 3x3 L=2 trained <= Trotter",
+   "passed": true,
+   "J0": 2.436508132478206e-13,
+   "J_final": 1.7442400677044304e-13,
+   "eps_init": 2.2913959420686678e-06,
+   "eps_trained": 1.970551938643495e-06
+  },
+  {
+   "name": "(a) 3x3 L=4 trained <= Trotter",
+   "passed": true,
+   "J0": 1.522779409963235e-14,
+   "J_final": 3.060113984204834e-15,
+   "eps_init": 5.728354576607526e-07,
+   "eps_trained": 2.3216007934317344e-07
+  },
+  {
+   "name": "(b) 2x3 t=0.05 L=10: S4 ~7.6e-6, HVA >= ~2x better",
+   "passed": true,
+   "eps_S4": 7.574437834100428e-06,
+   "eps_HVA": 2.225252731944063e-06,
+   "improvement": 3.403855088173791
+  },
+  {
+   "name": "(c) 4x4 L=2 M=4 held-out vs train",
+   "passed": true,
+   "J_train": 4.555685925162382e-13,
+   "J_heldout": 4.526800009473778e-13,
+   "rel_diff": 0.006340629306568078,
+   "n": 16
+  },
+  {
+   "name": "(c) 4x5 L=2 M=4 held-out vs train",
+   "passed": true,
+   "J_train": 6.49032061346559e-13,
+   "J_heldout": 6.478532553814436e-13,
+   "rel_diff": 0.001816252286011527,
+   "n": 20
+  },
+  {
+   "name": "(d) cpu vs cuda:0 agree (n=12, complex128)",
+   "passed": true,
+   "circuit": 6.834017936133213e-17,
+   "chebyshev": 8.673617379884035e-18,
+   "gradient_rel": 1.7441926530980472e-16
+  }
+ ],
+ "wall_s": 271.38512421400037,
+ "env": {
+  "host": "HyunwooDesktop",
+  "gpu": [
+   "NVIDIA GeForce RTX 2060"
+  ],
+  "devices": [
+   "cuda:0"
+  ],
+  "torch": "2.14.1+cu130",
+  "python": "3.12.3",
+  "git": "74eb86e",
+  "gpu_peak_GB": [
+   0.201
+  ]
+ }
+}

@@ -1,0 +1,18 @@
+
+L=4 S2^2: target 4x4, P=32, resolved 23 (floored 9); raw condition 8.0e+08
+  B from 4x4: rel diff 0.00; preconditioned |eig| 1.00 .. 1.00e+00, condition 1.0e+00;  H_src eigen-decades {10: 2, 9: 7, 6: 1, 5: 6, 4: 6, 1: 1}
+  B from 3x4: rel diff 0.29; preconditioned |eig| 1.28 .. 6.13e-01, condition 2.1e+00;  H_src eigen-decades {10: 5, 9: 4, 5: 8, 4: 5, 1: 1}
+  B from 3x3: rel diff 0.45; preconditioned |eig| 1.37 .. 5.09e-01, condition 2.7e+00;  H_src eigen-decades {10: 4, 9: 5, 5: 8, 4: 5, 1: 3}
+  B from 2x3: rel diff 1.34; preconditioned |eig| 248912005.23 .. 2.62e-01, condition 9.5e+08;  H_src eigen-decades {10: 7, 6: 2, 5: 5, 4: 2, 2: 2}
+
+L=6 Y4: target 4x4, P=47, resolved 27 (floored 20); raw condition 8.5e+08
+  B from 4x4: rel diff 0.00; preconditioned |eig| 1.00 .. 1.00e+00, condition 1.0e+00;  H_src eigen-decades {16: 1, 15: 8, 12: 3, 11: 4, 10: 6, 7: 5}
+  B from 3x4: rel diff 0.41; preconditioned |eig| 1.18 .. 5.38e-01, condition 2.2e+00;  H_src eigen-decades {16: 2, 15: 7, 12: 4, 11: 3, 10: 6, 7: 5}
+  B from 3x3: rel diff 0.78; preconditioned |eig| 1.07 .. 3.71e-01, condition 2.9e+00;  H_src eigen-decades {16: 4, 15: 5, 12: 5, 11: 2, 10: 6, 7: 8}
+  B from 2x3: rel diff 2.72; preconditioned |eig| 158116131.11 .. 9.54e-02, condition 1.7e+09;  H_src eigen-decades {16: 7, 12: 5, 11: 1, 10: 3, 8: 5, 7: 3}
+
+L=10 S4: target 4x4, P=77, resolved 22 (floored 55); raw condition 1.6e+06
+  B from 4x4: rel diff 0.00; preconditioned |eig| 1.00 .. 1.00e+00, condition 1.0e+00;  H_src eigen-decades {19: 2, 18: 7, 14: 6, 13: 7}
+  B from 3x4: rel diff 0.45; preconditioned |eig| 1.11 .. 5.37e-01, condition 2.1e+00;  H_src eigen-decades {19: 4, 18: 5, 14: 7, 13: 6, 10: 4}
+  B from 3x3: rel diff 0.96; preconditioned |eig| 0.96 .. 3.58e-01, condition 2.7e+00;  H_src eigen-decades {19: 7, 18: 2, 14: 8, 13: 5, 10: 17}
+  B from 2x3: rel diff 5.21; preconditioned |eig| 94867452.39 .. 8.27e-02, condition 1.1e+09;  H_src eigen-decades {19: 7, 15: 4, 14: 4, 13: 1, 12: 2, 11: 18}

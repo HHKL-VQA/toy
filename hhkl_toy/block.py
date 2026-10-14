@@ -122,6 +122,9 @@ def run(setup, L, init=None, M=4, M_heldout=2, maxiter=500, precond="own",
     if os.path.exists(path) and not force:
         with open(path, encoding="utf-8") as fh:
             R = json.load(fh)
+        if R.get("init", init) != init:
+            raise RuntimeError(
+                f"{path} holds init {R['init']!r}, not {init!r}; move it aside or pass --force")
         if R.get("complete") and not resume:
             log(f"[{name}] already complete, skipping (use --force to redo)")
             return R

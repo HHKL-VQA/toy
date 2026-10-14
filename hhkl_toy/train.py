@@ -175,6 +175,9 @@ def lbfgs(f, c0, J0, B=None, maxiter=500, window=30, min_rel=1e-3, ftol=1e-15,
     hist, it0, wall0 = [], 0, 0.0
     if resume:
         header, its = read_checkpoint(ckpt)
+        if header is not None and not np.allclose(header["c0"], c0, rtol=0, atol=1e-15):
+            log("  checkpoint was started from different angles; ignoring it")
+            header, its = None, []
         if header is not None:
             J0 = header["J0"]
             if its:

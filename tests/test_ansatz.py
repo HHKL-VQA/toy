@@ -135,9 +135,11 @@ def test_trotter_values():
     for g in ansatz.FORWARD:
         tot = sum(c[s["idx"][0]] for s in seq if s["g"] == g)
         assert abs(tot - 1.0) < 1e-14, g
+    assert [ansatz.default_init(L) for L in (2, 4, 6, 8, 10, 12, 30)] == \
+        ["S2^1", "S2^2", "Y4", "S2^4", "S4", "Y4", "S4"]
     for L in (2, 4, 6):
         seq = ansatz.slots(L)
-        c = ansatz.trotter_params(seq, L, ansatz.default_init(L))
+        c = ansatz.trotter_params(seq, L, f"S2^{L // 2}")
         for s in seq:
             assert np.allclose([c[i] for i in s["idx"]], len(s["layers"]) / L)
 
@@ -145,12 +147,11 @@ def test_trotter_values():
 def test_circuit_equals_direct_trotter():
     for sx, sy in [(3, 3), (2, 3), (3, 2)]:
         p = Patch(sx, sy, 0)
-        for L in (2, 4, 6, 10):
-            init = ansatz.default_init(L)
+        for L, init in ((2, "S2^1"), (4, "S2^2"), (6, "S2^3"), (6, "Y4"), (10, "S4")):
             for t in (0.05, 0.3):
                 U = circuit_unitary(p, L, init, t)
                 ref = dense_formula(p, t, init)
-                assert np.abs(U - ref).max() < TOL, (sx, sy, L, t)
+                assert np.abs(U - ref).max() < TOL, (sx, sy, L, init, t)
 
 
 def test_order_of_accuracy():

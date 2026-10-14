@@ -44,8 +44,16 @@ def n_params(seq):
 
 
 def default_init(L):
-    """S4 for L = 10m, otherwise S2^(L/2) (PLAN.md §4.1 table)."""
-    return "S4" if L % 10 == 0 else f"S2^{L // 2}"
+    """Highest-order Trotter start that fits L layers (PLAN.md §4.1 table).
+
+    S4 (5-stage 4th order) for L = 10m, Y4 (3-stage 4th order) for L = 6m,
+    otherwise S2^(L/2).  At L = 30 both fit; S4^3 has the smaller error.
+    """
+    if L % 10 == 0:
+        return "S4"
+    if L % 6 == 0:
+        return "Y4"
+    return f"S2^{L // 2}"
 
 
 def layer_weights(L, init):

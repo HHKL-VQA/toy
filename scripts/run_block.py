@@ -27,7 +27,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0, help="disorder seed")
     ap.add_argument("--t", type=float, default=3.41e-3)
     ap.add_argument("--L", type=int, nargs="+", default=[2, 4, 6, 10])
-    ap.add_argument("--init", default=None, help="S2^r or S4 (default: S4 for L=10m, else S2^(L/2))")
+    ap.add_argument("--init", default=None,
+                    help="S2^r, Y4 or S4 (default: S4 for L=10m, Y4 for L=6m, else S2^(L/2))")
     ap.add_argument("--M", type=int, default=4, help="training Haar states")
     ap.add_argument("--M-heldout", type=int, default=2)
     ap.add_argument("--maxiter", type=int, default=500)
@@ -81,8 +82,11 @@ def main():
                 summary.append(f"L={L} J {R['train']['J0']:.3e}->{R['train']['J_final']:.3e} "
                                "(not certified)")
                 continue
-            blk = (f" ({res['ratio_to_eps_blk']:.2f} eps_blk)"
-                   if res["ratio_to_eps_blk"] is not None else "")
+            blk = ""
+            if R["eps_blk"]:
+                e5 = block.to_target(R["patch"], res["eps_spec_reported"])
+                blk = (f" ({e5 / R['eps_blk']:.3g} eps_blk)" if R["patch"] == block.TARGET
+                       else f" (-> 5x6 est. {e5:.2e} = {e5 / R['eps_blk']:.3g} eps_blk)")
             summary.append(f"L={L} eps {res['eps_spec_init']:.3e}->"
                            f"{res['eps_spec_reported']:.3e}{blk}")
             agree = [R["certify"][w]["start_vectors_agree"] for w in ("init", "trained")]

@@ -20,8 +20,10 @@ import torch
 from . import adjoint, ansatz, certify, sv, target, train
 from .lattice import Patch
 
-# block error budgets from PLAN.md §1.2
+# block error budgets from PLAN.md §1.2.  They belong to the 5x6 block of the
+# 10x10 decomposition; a smaller test patch is compared through to_target().
 EPS_BLK = {3.41e-3: 1.71e-9, 1.35e-3: 6.75e-10}
+TARGET = "5x6"
 
 TRAIN_SEED0, HELDOUT_SEED0 = 101, 201
 
@@ -31,6 +33,17 @@ def tag(patch, seed, t, L, init=None):
     not overwrite the default run of the same L."""
     extra = f"_{init.replace('^', '')}" if init and init != ansatz.default_init(L) else ""
     return f"{patch}_s{seed}_t{t:g}_L{L}{extra}"
+
+
+def to_target(patch_name, eps):
+    """eps of a test patch scaled to the 5x6 block by bond count.
+
+    The certified error is extensive (PLAN.md §1.4): eps per bond is flat to 0.3 %
+    between 4x5 and 4x6, so from those patches this is the 5x6 estimate.  From
+    smaller patches it is a few to 20 % low (boundary bonds err less).
+    """
+    nb = lambda name: len(Patch.from_name(name).bonds)
+    return eps * nb(TARGET) / nb(patch_name)
 
 
 def env_info(devices):

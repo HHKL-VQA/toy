@@ -139,21 +139,9 @@ python scripts/run_block.py --patch 4x6 --t 3.41e-3 --L 2 4 6 10    # 24큐비�
 - `bench.py`의 `train it ~…s`와 `cert 300 its ~…h`로 30큐비트 비용을 외삽한다. 벡터 크기에 거의 비례한다.
 - **2026-10-11 결과:** 4×5·4×6 완료. 분석은 [`results/analysis_stage7_8.md`](results/analysis_stage7_8.md), 요약은 PLAN.md §1.4에 있다.
 - **2026-10-14부터 $L$=6의 기본 초기값은 Y4(3단 4차)이다.** 그 전의 $L$=6 결과(S2³)는 `..._L6_S23.json`으로 이름을 바꿔 남겼다.
-
-**데스크탑에서 다시 할 것: $L$=6(Y4)만** (나머지 $L$=2·4·10은 그대로 유효)
-
-```bash
-git checkout main && git pull                                        # 새 코드와 이름이 바뀐 결과 파일
-python scripts/run_block.py --patch 4x5 --t 3.41e-3 --L 6           # 약 5분
-python scripts/run_block.py --patch 4x6 --t 3.41e-3 --L 6           # 약 30~40분
-python scripts/validate.py --device cuda                             # Stage 7 기록(아직 저장소에 없음), 수 분
-python scripts/report.py --plot results/fig1.png
-git add results && git commit -m "Stage 8: L=6 with Y4 init" && git push
-```
-
-- 새 결과는 `results/{4x5,4x6}_s0_t0.00341_L6.json`(init `Y4`)에 저장된다. `report.py` 표에 S2³과 Y4가 함께 나온다.
-- `--resume`은 쓰지 않는다. 쓰더라도 이전 S2³ 체크포인트는 시작 각도가 달라서 무시되고, 헤시안 캐시도 시작점이 달라서 다시 계산된다. 같은 이름에 다른 초기값의 결과 파일이 있으면 실행이 멈추고 알려 준다.
-- 예상(3×3·3×4·4×4에서 직선 외삽): 학습 전 4×5 약 2.6e-9, 4×6 약 3.3e-9 → 학습 후 4×5 약 1.4e-9, 4×6 약 1.7e-9. $\epsilon_\text{blk}$(1.71e-9)의 0.8~1.0배이다.
+- **2026-10-14 $L$=6(Y4) 재실행 완료:** 학습 후 4×5 1.41e-9, 4×6 1.72e-9로 예측과 1 % 이내였다. `validate.py --device cuda`도 8개 모두 통과했다.
+  - 같은 $L$을 다른 초기값으로 다시 돌릴 때는 `--resume`을 쓰지 않는다. 같은 이름에 다른 초기값의 결과 파일이 있으면 실행이 멈추고 알려 준다.
+- $\epsilon_\text{blk}$(1.71e-9)은 10×10 분해의 **5×6 블록** 예산이다. 작은 패치 결과는 본드 수로 환산한 5×6 추정치($\epsilon\times49/\text{본드 수}$)로 비교한다. `report.py` 표의 `5x6 est. / eps_blk` 열과 `run_block.py` 마지막 줄이 이 값이다. 그림 1의 $\epsilon_\text{blk}$ 선은 5×6 결과에만 그린다.
 
 ## 7. Stage 9: H200 준비
 
@@ -212,7 +200,7 @@ python scripts/run_block.py --patch 5x6 --seed 0 --t 3.41e-3 --L 2 4 6 10 --prec
 - 통과 기준: 각 $L$의 JSON에 `"complete": true`, 인증 시작 벡터 일치(`start_vectors_agree`), drift ≤1e-10, 마지막 줄 `PASS`.
 - 종료 규칙(PLAN.md §4.5): 최근 30회 동안 개선 < 0.1 %, 500회, scipy 자체 종료 중 먼저 오는 것. `--precond none`이면 정체 창이 100회다.
 - 시간: 24큐비트 실측에서 외삽하면 4개 $L$에 약 5시간(`--precond 5x4`), 자기 헤시안이면 약 7.5시간이다. Stage 9 실측으로 확인한다.
-- 예측(5×6, 학습 후 $\epsilon_\text{spec}$): $L$=2 7.8e-6, $L$=4 1.0e-6, $L$=6(Y4) 2.3e-9, $L$=10 9.6e-11. 2배 이상 다르면 그 자체가 중요한 결과다.
+- 예측(5×6, 학습 후 $\epsilon_\text{spec}$): $L$=2 7.8e-6, $L$=4 1.0e-6, $L$=6(Y4) 2.2e-9($\epsilon_\text{blk}$의 1.3배), $L$=10 9.6e-11. 2배 이상 다르면 그 자체가 중요한 결과다.
 - 인증 시간을 줄이려면 `--cert-seeds 1`(시작 벡터 1개)로 둘 수 있다. 기본은 2개다(PLAN.md §4.6).
 - 보조 실험(선택): `--t 1.35e-3 --L <가장 좋은 L>`, 무질서 `--seed 1`, `--seed 2`.
 

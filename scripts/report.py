@@ -4,6 +4,10 @@
     python scripts/report.py --plot fig1.png      # also Figure 1 (needs matplotlib)
 
 Writes results/report.md and prints it.
+
+eps_blk is the budget of the 5x6 block of the 10x10 decomposition.  Smaller test
+patches are compared through their bond-scaled 5x6 estimate (block.to_target),
+and the eps_blk line is drawn only for 5x6 runs.
 """
 
 import argparse
@@ -11,6 +15,10 @@ import glob
 import json
 import os
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from hhkl_toy.block import TARGET, to_target
 
 
 def fmt(x, spec=".3e"):
@@ -35,19 +43,22 @@ def table(runs):
     lines = []
     for (patch, seed, t), rs in sorted(groups.items()):
         eb = rs[0].get("eps_blk")
+        est = patch != TARGET
+        col = f"{TARGET} est. / eps_blk" if est else "eps_spec / eps_blk"
         lines += [f"### {patch}, seed {seed}, t = {t:g}"
-                  + (f", eps_blk = {eb:.3g}" if eb else ""), "",
+                  + (f", eps_blk({TARGET}) = {eb:.3g}" if eb else ""), "",
                   "| L | CNOT | depth | params | eps_spec (Trotter) | eps_spec (trained) "
-                  "| improvement | eps_spec / eps_blk | eps_rHS (trained) | spectral / rHS |",
+                  f"| improvement | {col} | eps_rHS (trained) | spectral / rHS |",
                   "|---|---|---|---|---|---|---|---|---|---|"]
         for R in sorted(rs, key=lambda r: r["L"]):
             res = R.get("result", {})
             e_i, e_t = res.get("eps_spec_init"), res.get("eps_spec_reported")
             note = " (init kept)" if res.get("fallback_to_init") else ""
+            ratio = to_target(patch, e_t) / eb if eb and e_t is not None else None
             lines.append(
                 f"| {R['L']} ({R['init']}) | {R['cnot']} | {R['cnot_depth']} | {R['n_params']} "
                 f"| {fmt(e_i)} | {fmt(e_t)}{note} | {fmt(res.get('improvement'), '.2f')} "
-                f"| {fmt(res.get('ratio_to_eps_blk'), '.3g')} "
+                f"| {fmt(ratio, '.3f' if ratio is not None and ratio < 10 else '.3g')} "
                 f"| {fmt(R['eps_rhs']['trained'])} | {fmt(res.get('spectral_over_rhs'), '.2f')} |")
         lines += ["", "| L | J0 | J final | iters | stop | drift | held-out diff | "
                       "cert its (init / trained) | starts agree | wall |",
@@ -64,31 +75,52 @@ def table(runs):
                 f"| {tr['stop_reason'].split(':')[0]} | {tr['drift_max']:.1e} "
                 f"| {'-' if hd is None else f'{100 * hd:.2f} %'} | {its} | {agree} "
                 f"| {R['env']['wall_total_s'] / 3600:.2f} h |")
+        if est and eb:
+            lines += ["", f"{TARGET} est. = eps_spec (trained) x bonds({TARGET}) / bonds({patch}): "
+                          f"eps_blk applies to the {TARGET} block only."]
         lines.append("")
     return "\n".join(lines)
 
 
 def plot(runs, path):
+    """One colour per (patch, seed, t): the default inits (S2, S2^2, Y4, S4) joined by
+    lines, other inits (e.g. S2^3 at L=6) as lone x markers.  Hollow = Trotter start,
+    filled = trained.  The eps_blk line is drawn only for the 5x6 block."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(figsize=(5.5, 4))
+    from hhkl_toy.ansatz import default_init
+    fig, ax = plt.subplots(figsize=(6.2, 4.2))
     groups = {}
     for R in runs:
         if "result" in R:
-            family = "Y4" if R["init"].startswith("Y4") else ""      # separate series
-            groups.setdefault((R["patch"], R["seed"], R["t"], family), []).append(R)
-    for (patch, seed, t, family), rs in sorted(groups.items()):
-        rs = sorted(rs, key=lambda r: r["cnot"])
-        x = [r["cnot"] for r in rs]
-        lab = f"{patch} s{seed} t={t:g}" + (f" {family}" if family else "")
-        ax.plot(x, [r["result"]["eps_spec_init"] for r in rs], "o--", label=f"Trotter, {lab}")
-        ax.plot(x, [r["result"]["eps_spec_reported"] for r in rs], "s-", label=f"trained, {lab}")
-        if rs[0].get("eps_blk"):
-            ax.axhline(rs[0]["eps_blk"], color="gray", lw=1, ls=":")
+            groups.setdefault((R["patch"], R["seed"], R["t"]), []).append(R)
+    eb = None
+    for k, ((patch, seed, t), rs) in enumerate(sorted(groups.items())):
+        col = f"C{k}"
+        lab = f"{patch} s{seed} t={t:g}"
+        main = sorted((r for r in rs if r["init"] == default_init(r["L"])), key=lambda r: r["cnot"])
+        x = [r["cnot"] for r in main]
+        ax.plot(x, [r["result"]["eps_spec_init"] for r in main], "o--", color=col, mfc="white",
+                label=f"{lab}, Trotter start")
+        ax.plot(x, [r["result"]["eps_spec_reported"] for r in main], "s-", color=col,
+                label=f"{lab}, trained")
+        for r in rs:
+            if r["init"] != default_init(r["L"]):
+                ax.plot([r["cnot"]] * 2, [r["result"]["eps_spec_init"],
+                                          r["result"]["eps_spec_reported"]], ":", color=col, lw=1)
+                ax.plot(r["cnot"], r["result"]["eps_spec_reported"], "x", color=col, ms=7)
+                ax.annotate(f"L={r['L']} {r['init']}", (r["cnot"], r["result"]["eps_spec_reported"]),
+                            textcoords="offset points", xytext=(5, -3), fontsize=7, color=col)
+        if patch == TARGET and rs[0].get("eps_blk"):        # the budget is the 5x6 block's
+            eb = rs[0]["eps_blk"]
+    if eb:
+        ax.axhline(eb, color="gray", lw=1, ls=":")
+        ax.annotate(r"$\epsilon_\mathrm{blk}$", (ax.get_xlim()[0], eb), textcoords="offset points",
+                    xytext=(4, 3), fontsize=8, color="gray")
     ax.set_yscale("log")
     ax.set_xlabel("CNOT count")
-    ax.set_ylabel(r"$\epsilon_\mathrm{spec}$")
+    ax.set_ylabel(r"certified $\epsilon_\mathrm{spec}$")
     ax.legend(fontsize=7)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
